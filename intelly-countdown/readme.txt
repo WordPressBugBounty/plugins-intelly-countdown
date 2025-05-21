@@ -1,7 +1,7 @@
 === Evergreen Countdown Timer ===
 Contributors: IntellyWP, Data443
 Tags: countdown timer, evergreen countdown timer, scarcity, scarcity builder, countdowns, scarcity timer, countdown wordpress plugin, expiration, scarcity wordpress plugin, perpetual countdown, perpetual timer
-Tested up to: 6.1
+Tested up to: 6.8
 Requires at least: 2.7
 Requires PHP: 5.6
 Stable tag: 2.0.8
