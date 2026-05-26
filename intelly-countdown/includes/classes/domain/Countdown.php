@@ -64,7 +64,7 @@ class ICP_Countdown {
 	//@ui-type=text
 	var $redirectUri;
 
-	public function __costruct() {
+	public function __construct() {
 
 	}
 }

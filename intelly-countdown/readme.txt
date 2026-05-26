@@ -1,10 +1,10 @@
 === Evergreen Countdown Timer ===
 Contributors: IntellyWP, Data443
 Tags: countdown timer, evergreen countdown timer, scarcity, scarcity builder, countdowns, scarcity timer, countdown wordpress plugin, expiration, scarcity wordpress plugin, perpetual countdown, perpetual timer
-Tested up to: 6.8
+Tested up to: 7.0
 Requires at least: 2.7
-Requires PHP: 5.6
-Stable tag: 2.0.8
+Requires PHP: 7.4
+Stable tag: 2.1.0
 
 Evergreen Countdown is a plugin built for marketers that need a reliable solution to use scarcity on their websites and landing pages.
 
@@ -95,6 +95,11 @@ Support for POT translation files.
 == Changelog ==
 
 For detailed release notes, see our documentation here: [http://intellywp.com/docs/evergreen-countdown-timer/](http://intellywp.com/docs/evergreen-countdown-timer/).
+
+= 2.1.0 =
+*Release Date - 2026-5-20*
+
+* Verify the plugin for WordPress 7.0
 
 = 2.0.8 =
 *Release Date - 2023-3-1*

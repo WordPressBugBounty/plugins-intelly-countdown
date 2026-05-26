@@ -27,7 +27,7 @@ class ICP_PluginSettings {
 	//@ui-type=toggle
 	var $debugMode;
 
-	public function __costruct() {
+	public function __construct() {
 
 	}
 }
