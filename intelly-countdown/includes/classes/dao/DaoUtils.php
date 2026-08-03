@@ -5,58 +5,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class ICP_DaoUtils {
 	var $data;
-	var $tables;
 
 	public function __construct() {
-		$this->data   = array();
-		$this->tables = array();
-	}
-
-	public function getDatabaseVersion() {
-		ob_start();
-		var_dump( $this->tables );
-		$buffer = ob_get_clean();
-		$buffer = md5( $buffer );
-		return $buffer;
-	}
-	private function getColumnCreationSql( $table, $primary, $name, $column ) {
-		global $icp;
-		if ( ! isset( $column['type'] ) || '' == $column['type'] ) {
-			return '';
-		}
-
-		$type = strtolower( $column['type'] );
-		switch ( $type ) {
-			case 'array':
-				$type = 'text';
-				//if(!isset($column['len'])) {
-				//    $column['len']=100;
-				//}
-				break;
-			case 'json':
-				$type = 'longtext';
-				unset( $column['len'] );
-				break;
-			case 'pointer':
-				$type = 'int';
-				break;
-		}
-		$type = strtoupper( $type );
-		$sql  = $icp->Dao->encodeColumn( $table, $column['column'] ) . ' ' . $type;
-
-		if ( isset( $column['len'] ) ) {
-			$sql .= '(' . $column['len'] . ')';
-		}
-		if ( isset( $column['default'] ) && ! $icp->Utils->startsWith( $column['default'], '{' ) ) {
-			$sql .= " DEFAULT '" . $column['default'] . "'";
-		}
-		if ( ( isset( $column['required'] ) && $column['required'] ) || ( isset( $column['primary'] ) && $column['primary'] ) ) {
-			$sql .= ' NOT NULL';
-		}
-		if ( isset( $primary[ $name ] ) && 1 == count( $primary ) ) {
-			$sql .= ' AUTO_INCREMENT';
-		}
-		return $sql;
+		$this->data = array();
 	}
 
 	function load( $prefix, $root ) {
@@ -209,7 +160,6 @@ class ICP_DaoUtils {
 						$data['table']                = $wpdb->prefix . $prefix . $data['table'];
 						$this->data[ $data['table'] ] = $data;
 					}
-					$this->tables[ $data['class'] ] = $data;
 				}
 
 				$class                = $data['class'];
@@ -217,17 +167,6 @@ class ICP_DaoUtils {
 				$class                = str_replace( ICP_PLUGIN_PREFIX, '', $class );
 				$this->data[ $class ] = $data;
 				$result               = true;
-			}
-		}
-		return $result;
-	}
-	public function getTableClass( $class ) {
-		$table  = $this->getTable( $class );
-		$result = '';
-		if ( false !== $table && isset( $table['class'] ) ) {
-			$result = $table['class'];
-			if ( ! class_exists( $result ) ) {
-				$result = '';
 			}
 		}
 		return $result;
@@ -258,59 +197,6 @@ class ICP_DaoUtils {
 		}
 		return $class;
 	}
-	public function getTableName( $class ) {
-		global $icp;
-		$key    = array( 'DaoUtils.getTableName', $class );
-		$result = $icp->Options->getCache( $key );
-		if ( false === $result ) {
-			$table  = $this->getTable( $class );
-			$result = '';
-			if ( false !== $table ) {
-				$result = strtolower( $table['table'] );
-			}
-			$icp->Options->setCache( $key, $result );
-		}
-		return $result;
-	}
-	public function getTable( $class ) {
-		global $icp;
-		$key    = array( 'DaoUtils.getTable', $class );
-		$result = $icp->Options->getCache( $key );
-		if ( false === $result ) {
-			if ( is_object( $class ) ) {
-				$class = get_class( $class );
-			}
-			$classes   = array();
-			$classes[] = $class;
-			if ( strpos( $class, ICP_PLUGIN_PREFIX ) !== false ) {
-				$class     = str_replace( ICP_PLUGIN_PREFIX, '', $class );
-				$classes[] = $class;
-			}
-			if ( strpos( $class, 'Search' ) !== false ) {
-				$class     = str_replace( 'Search', '', $class );
-				$classes[] = $class;
-			}
-
-			$result = false;
-			foreach ( $classes as $class ) {
-				if ( isset( $this->data[ $class ] ) ) {
-					$v = $this->data[ $class ];
-					if ( isset( $v['table'] ) && '' != $v['table'] ) {
-						$result = $v;
-						break;
-					} elseif ( isset( $v['tableClass'] ) && '' != $v['tableClass'] ) {
-						$v = $v['tableClass'];
-						if ( isset( $v['table'] ) && '' != $v['table'] ) {
-							$result = $v;
-							break;
-						}
-					}
-				}
-			}
-			$icp->Options->setCache( $key, $result );
-		}
-		return $result;
-	}
 	public function getId( $instance ) {
 		$primary = $this->getPrimary( $instance );
 		$result  = -1;
@@ -331,26 +217,6 @@ class ICP_DaoUtils {
 				$result = $k;
 				break;
 			}
-			$icp->Options->setCache( $key, $result );
-		}
-		return $result;
-	}
-	public function getPointersColumns( $class ) {
-		global $icp;
-		if ( is_object( $class ) ) {
-			$class = get_class( $class );
-		}
-		$class = str_replace( ICP_PLUGIN_PREFIX, '', $class );
-		$class = str_replace( 'Search', '', $class );
-
-		$key    = array( 'DaoUtils.getPointersColumns', $class );
-		$result = $icp->Options->getCache( $key );
-		if ( false === $result ) {
-			$options = array(
-				'includeUiTypes' => 'pointer',
-				'includeNested'  => false,
-			);
-			$result  = $this->getColumns( $class, $options );
 			$icp->Options->setCache( $key, $result );
 		}
 		return $result;
@@ -388,7 +254,6 @@ class ICP_DaoUtils {
 		$options  = $icp->Utils->parseArgs( $options, $defaults );
 
 		//we cannot do this due to $class could be a search class and not a table class
-		//$class=$this->getTable($class);
 		$result = array();
 		if ( is_array( $class ) ) {
 			foreach ( $class as $c ) {
@@ -534,77 +399,6 @@ class ICP_DaoUtils {
 			foreach ( $columns as $k => $v ) {
 				if ( isset( $v['primary'] ) && $v['primary'] ) {
 					$result[ $k ] = $v;
-				}
-			}
-			$icp->Options->setCache( $key, $result );
-		}
-		return $result;
-	}
-	public function getColumnsDefaults( $class ) {
-		global $icp;
-		$key    = array( 'DaoUtils.getColumnsDefaults', $class );
-		$result = $icp->Options->getCache( $key );
-		if ( false === $result ) {
-			$result  = array();
-			$options = array( 'includeNested' => false );
-			$fields  = $this->getColumns( $class, $options );
-			foreach ( $fields as $k => $v ) {
-				if ( isset( $v['default'] ) && '' !== $v['default'] ) {
-					$v = $v['default'];
-					if ( ! $icp->Utils->startsWith( $v, '{' ) ) {
-						$result[ $k ] = $v;
-					}
-					/*if($v=='currentCallCenterId') {
-						$u=$ec->Session->getUser();
-						$v=$u->id;
-						if($v>0 && $u->userRight==ICP_UserConstants::USER_RIGHT_CALL_CENTER) {
-							$result[$k]=$v;
-						}
-					} elseif($v=='currentAgentId') {
-						$u=$ec->Session->getUser();
-						$v=$u->id;
-						if($v>0 && ($u->userRight==ICP_UserConstants::USER_RIGHT_AGENT || $u->userRight==ICP_UserConstants::USER_RIGHT_AGENT_MANAGER)) {
-							$result[$k]=$v;
-						}
-					} elseif($v=='currentUserId') {
-						$v=$ec->Session->getUserId();
-						if($v>0) {
-							$result[$k]=$v;
-						}
-					}*/
-				}
-			}
-			$icp->Options->setCache( $key, $result );
-		}
-		return $result;
-	}
-	public function getColumnsFormats( $class ) {
-		global $icp;
-		$key    = array( 'DaoUtils.getColumnsFormats', $class );
-		$result = $icp->Options->getCache( $key );
-		if ( false === $result ) {
-			$result  = array();
-			$options = array( 'includeNested' => false );
-			$fields  = $this->getColumns( $class, $options );
-			foreach ( $fields as $k => $v ) {
-				if ( isset( $v['type'] ) && '' != $v['type'] ) {
-					$result[ $k ] = '%s';
-					switch ( strtolower( $v['type'] ) ) {
-						case 'int':
-						case 'long':
-							$result[ $k ] = '%d';
-							break;
-						case 'float':
-						case 'double':
-						case 'numeric':
-							$result[ $k ] = '%f';
-							break;
-						case 'date':
-						case 'datetime':
-						case 'time':
-							$result[ $k ] = '%s';
-							break;
-					}
 				}
 			}
 			$icp->Options->setCache( $key, $result );
@@ -784,9 +578,6 @@ class ICP_DaoUtils {
 		}
 		return $result;
 	}
-	public function encodeQuote( $class, $name, $value ) {
-		return $this->encode( $class, $name, $value, true );
-	}
 	//encode data from class to database including quote if needed
 	public function encode( $class, $name, $value, $quote ) {
 		global $icp;
@@ -832,7 +623,7 @@ class ICP_DaoUtils {
 					if ( is_array( $value ) ) {
 						$value = implode( '|', $value );
 					} elseif ( is_object( $value ) ) {
-						throw new Exception( 'VALUE OF CLASS=' . get_class( $value ) . ' CANNOT BE PASSED IN ENCODE' );
+						throw new Exception( 'VALUE OF CLASS=' . esc_html( get_class( $value ) ) . ' CANNOT BE PASSED IN ENCODE' );
 					} else {
 						$value = trim( $value );
 					}

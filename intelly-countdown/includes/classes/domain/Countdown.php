@@ -64,6 +64,13 @@ class ICP_Countdown {
 	//@ui-type=text
 	var $redirectUri;
 
+	// Slot-mode fields initialized by ICP_Manager::get(). Declared (without DAO/UI
+	// annotations) so PHP 8.2+ does not raise a dynamic-property deprecation; they
+	// remain unused by the free editor UI, matching prior behavior.
+	var $expireSlotsIn;
+	var $availableSlots;
+	var $automaticResetDays;
+
 	public function __construct() {
 
 	}

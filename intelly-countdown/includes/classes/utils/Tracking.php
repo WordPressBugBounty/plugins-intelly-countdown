@@ -61,11 +61,11 @@ class ICP_Tracking {
 		global $icp;
 
 		//retrieve blog info
-		$result['wp_url']         = home_url();
-		$result['wp_version']     = get_bloginfo( 'version' );
-		$result['wp_language']    = get_bloginfo( 'language' );
-		$result['wp_wpurl']       = get_bloginfo( 'wpurl' );
-		$result['wp_admin_email'] = get_bloginfo( 'admin_email' );
+		$result['wp_url']      = home_url();
+		$result['wp_version']  = get_bloginfo( 'version' );
+		$result['wp_language'] = get_bloginfo( 'language' );
+		$result['wp_wpurl']    = get_bloginfo( 'wpurl' );
+		// Admin email intentionally omitted: PII is not required for usage telemetry.
 
 		$result['plugins'] = $this->getPluginData();
 		$result['theme']   = $this->getThemeData();
@@ -88,7 +88,14 @@ class ICP_Tracking {
 
 		$result['iwpm_tracking_enable'] = $icp->Options->isTrackingEnable();
 		$result['iwpm_logger_enable']   = $icp->Options->isLoggerEnable();
-		$result['iwpm_feedback_email']  = $icp->Options->getFeedbackEmail();
+
+		// Only sent when an administrator has deliberately configured a feedback address.
+		// getFeedbackEmail() defaults to '' rather than the site admin email, so no address
+		// leaves the site by default (finding #11 of `SECURITY-AUDIT.md`).
+		$feedback_email = $icp->Options->getFeedbackEmail();
+		if ( '' !== $feedback_email ) {
+			$result['iwpm_feedback_email'] = $feedback_email;
+		}
 		return $result;
 	}
 

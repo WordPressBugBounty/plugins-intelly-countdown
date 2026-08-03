@@ -1,4 +1,7 @@
 <?php
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 spl_autoload_register( 'icp_autoload' );
 function icp_autoload( $class ) {
 	$root = dirname( __FILE__ ) . '/includes/classes/';

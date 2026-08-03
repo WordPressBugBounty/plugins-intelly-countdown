@@ -10,6 +10,10 @@
  * @since   3.7.0
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 /**
  * WordPress Session class for managing user session data.
  *
@@ -255,6 +259,7 @@ final class ICP_Session extends ICP_Recursive_ArrayAccess implements Iterator, C
 	 *
 	 * @return mixed
 	 */
+	#[\ReturnTypeWillChange]
 	public function current() {
 		return current( $this->container );
 	}
@@ -266,6 +271,7 @@ final class ICP_Session extends ICP_Recursive_ArrayAccess implements Iterator, C
 	 *
 	 * @return mixed
 	 */
+	#[\ReturnTypeWillChange]
 	public function key() {
 		return key( $this->container );
 	}
@@ -277,6 +283,7 @@ final class ICP_Session extends ICP_Recursive_ArrayAccess implements Iterator, C
 	 *
 	 * @return void
 	 */
+	#[\ReturnTypeWillChange]
 	public function next() {
 		next( $this->container );
 	}
@@ -288,6 +295,7 @@ final class ICP_Session extends ICP_Recursive_ArrayAccess implements Iterator, C
 	 *
 	 * @return void
 	 */
+	#[\ReturnTypeWillChange]
 	public function rewind() {
 		reset( $this->container );
 	}
@@ -299,6 +307,7 @@ final class ICP_Session extends ICP_Recursive_ArrayAccess implements Iterator, C
 	 *
 	 * @return bool
 	 */
+	#[\ReturnTypeWillChange]
 	public function valid() {
 		return $this->offsetExists( $this->key() );
 	}
@@ -314,6 +323,7 @@ final class ICP_Session extends ICP_Recursive_ArrayAccess implements Iterator, C
 	 *
 	 * @return int
 	 */
+	#[\ReturnTypeWillChange]
 	public function count() {
 		return count( $this->container );
 	}

@@ -185,7 +185,7 @@ class ICP_Options {
 
 	//TrackingEnable
 	public function isTrackingEnable() {
-		return intval( $this->getOption( 'TrackingEnable', 1 ) );
+		return intval( $this->getOption( 'TrackingEnable', 0 ) );
 	}
 	public function setTrackingEnable( $value ) {
 		$this->setOption( 'TrackingEnable', $value );
@@ -259,8 +259,16 @@ class ICP_Options {
 		$this->setOption( 'LoggerEnable', $value );
 	}
 
+	/**
+	 * Feedback address, empty unless an administrator has explicitly set one.
+	 *
+	 * The default used to be `get_bloginfo( 'admin_email' )`, which meant the site admin
+	 * email was transmitted to the vendor on every tracking send even though nothing ever
+	 * calls setFeedbackEmail() (finding #11 of `SECURITY-AUDIT.md`). Defaulting to an empty
+	 * string keeps the leak closed at the source, whatever the caller does with the value.
+	 */
 	public function getFeedbackEmail() {
-		return $this->getOption( 'FeedbackEmail', get_bloginfo( 'admin_email' ) );
+		return $this->getOption( 'FeedbackEmail', '' );
 	}
 	public function setFeedbackEmail( $value ) {
 		$this->setOption( 'FeedbackEmail', $value );

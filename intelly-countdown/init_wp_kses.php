@@ -40,16 +40,11 @@ $icp_allowed_atts                  = array(
 	'defer'          => array(),
 	'integrity'      => array(),
 	'nomodule'       => array(),
-	'onload'         => array(),
 );
 $icp_allowed_html_tags['form']     = $icp_allowed_atts;
 $icp_allowed_html_tags['label']    = $icp_allowed_atts;
 $icp_allowed_html_tags['input']    = $icp_allowed_atts;
 $icp_allowed_html_tags['textarea'] = $icp_allowed_atts;
-$icp_allowed_html_tags['iframe']   = $icp_allowed_atts;
-$icp_allowed_html_tags['script']   = $icp_allowed_atts;
-$icp_allowed_html_tags['noscript'] = $icp_allowed_atts;
-$icp_allowed_html_tags['style']    = $icp_allowed_atts;
 $icp_allowed_html_tags['strong']   = $icp_allowed_atts;
 $icp_allowed_html_tags['small']    = $icp_allowed_atts;
 $icp_allowed_html_tags['table']    = $icp_allowed_atts;

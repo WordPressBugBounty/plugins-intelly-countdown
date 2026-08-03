@@ -1,4 +1,8 @@
 <?php
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 function icp_notice_pro_features() {
 	global $icp;
 
@@ -67,9 +71,14 @@ function icp_ui_editor() {
 	$id                = $icp->Utils->iqs( 'id' );
 	$instance          = $icp->Manager->get( $id, true );
 	$icp->Form->prefix = 'Editor';
-	if ( $icp->Check->is( '_action', 'Save' ) ) {
+	if ( $icp->Check->nonce( 'icp_editor' ) && $icp->Check->is( '_action', 'Save' ) ) {
 		/* @var $instance ICP_Countdown */
 		$instance = $icp->Dao->Utils->qs( 'Countdown' );
+
+		// Reject non-http(s) redirect targets (e.g. javascript:) before storing.
+		if ( is_object( $instance ) && isset( $instance->redirectUri ) && '' !== $instance->redirectUri ) {
+			$instance->redirectUri = esc_url_raw( $instance->redirectUri, array( 'http', 'https' ) );
+		}
 
 		$fields = 'name|type|evergreen|expirationDate|detect|expireDateIn|color|digitsFontSize|labelsFontSize';
 		$all    = true;
@@ -84,6 +93,7 @@ function icp_ui_editor() {
 	$icp->Form->formStarts();
 	{
 		$icp->Form->hidden( 'id', $instance->id );
+		$icp->Form->nonce( 'icp_editor' );
 		$title = ( $instance->id > 0 ? 'Edit' : 'Add' );
 		$icp->Form->openPanel( $title );
 		{

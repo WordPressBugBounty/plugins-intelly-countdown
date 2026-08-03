@@ -1,8 +1,12 @@
 <?php
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 function icp_ui_track( $always = false ) {
 	global $icp;
 	$track = $icp->Utils->qs( 'track', '' );
-	if ( '' != $track ) {
+	if ( '' != $track && $icp->Check->nonce( 'icp_track' ) ) {
 		$settings                     = $icp->Options->getPluginSettings();
 		$settings->allowUsageTracking = intval( $track );
 		$icp->Options->setPluginSettings( $settings );
@@ -13,11 +17,17 @@ function icp_ui_track( $always = false ) {
 	}
 
 	if ( $icp->Options->isTrackingEnable() ) {
-		$arg = array( 'track' => 0 );
+		$arg = array(
+			'track'    => 0,
+			'_wpnonce' => wp_create_nonce( 'icp_track' ),
+		);
 		$uri = $icp->Utils->addQueryString( $arg, ICP_TAB_SETTINGS_URI );
 		$icp->Options->pushSuccessMessage( 'Tracking.Enabled', $uri );
 	} else {
-		$arg = array( 'track' => 1 );
+		$arg = array(
+			'track'    => 1,
+			'_wpnonce' => wp_create_nonce( 'icp_track' ),
+		);
 		$uri = $icp->Utils->addQueryString( $arg, ICP_TAB_SETTINGS_URI );
 		$icp->Options->pushWarningMessage( 'Tracking.Disabled', $uri );
 	}

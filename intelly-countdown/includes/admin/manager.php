@@ -1,4 +1,8 @@
 <?php
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 function icp_ui_manager_clone( $ids ) {
 	global $icp;
 	$success = $icp->Manager->copy( $ids );
@@ -28,7 +32,9 @@ function icp_ui_manager() {
 	$icp->Form->prefix = 'Manager';
 	$action            = $icp->Utils->qs( '_action', '' );
 	$function          = false;
-	if ( $icp->Check->nonce() && '' !== $action ) {
+	// Only these actions may be dispatched to icp_ui_manager_{action}().
+	$allowedActions = array( 'clone', 'delete' );
+	if ( $icp->Check->nonce() && in_array( strtolower( $action ), $allowedActions, true ) ) {
 		$action     = strtolower( $action );
 		$ids        = $icp->Utils->toArray( $icp->Utils->qs( 'ids', array() ) );
 		$onlyOne    = false;

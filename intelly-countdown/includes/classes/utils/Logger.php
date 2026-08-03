@@ -106,7 +106,18 @@ class ICP_Logger {
 			$this->dump( $v5 ),
 			$this->dump( $v6 )
 		);
-		$m       = microtime( true ) % 1000;
+		/*
+		 * Milliseconds for the ':NNN' suffix below. This was `microtime( true ) % 1000`,
+		 * which had two problems: the modulo operator has no float overload, so PHP
+		 * coerced the float to int and raised "Implicit conversion from float ... to int
+		 * loses precision" (PHP 8.1+, and slated to become a TypeError) on every log line
+		 * at every level; and what it produced was seconds-mod-1000, not the milliseconds
+		 * the suffix implies. Taking the fractional part first fixes both, and keeps the
+		 * value inside 0..999 on 32-bit builds, where intval( microtime( true ) * 1000 )
+		 * would overflow.
+		 */
+		$now     = microtime( true );
+		$m       = intval( ( $now - floor( $now ) ) * 1000 );
 		$m       = ':' . str_pad( '' . $m, 3, '0', STR_PAD_LEFT );
 		$message = gmdate( 'd/m/Y H:i:s' ) . $m . ' ' . $verbosity . ' ';
 		if ( count( $this->context ) > 0 ) {

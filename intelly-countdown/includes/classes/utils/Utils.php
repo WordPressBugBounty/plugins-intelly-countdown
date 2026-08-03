@@ -166,8 +166,17 @@ class ICP_Utils {
 	}
 
 	public function twitter( $name ) {
+		// Self-contained X (formerly Twitter) follow link. The old markup relied on
+		// Twitter's platform.twitter.com/widgets.js to turn a `.twitter-follow-button`
+		// anchor into a logo button; that widget was retired after the X rebrand, so it
+		// rendered as bare text with no logo. Inline the X mark as SVG instead — no
+		// external script, works offline, and shows the correct current brand.
+		// Styling lives in the .icp-x-follow rules in assets/css/style.css.
 		?>
-		<a href="https://twitter.com/<?php echo esc_attr( $name ); ?>" class="twitter-follow-button" data-show-count="false" data-dnt="true">Follow @<?php echo esc_attr( $name ); ?></a>
+		<a href="https://x.com/<?php echo esc_attr( $name ); ?>" target="_blank" rel="noopener noreferrer" class="icp-x-follow">
+			<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true" focusable="false"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+			<span>Follow @<?php echo esc_html( $name ); ?></span>
+		</a>
 		<?php
 	}
 
@@ -760,7 +769,7 @@ class ICP_Utils {
 	}
 	public function parseDateToTime( $date ) {
 		global $icp;
-		if ( is_numeric( $date ) || trim( $date ) == '' ) {
+		if ( null === $date || is_numeric( $date ) || trim( $date ) == '' ) {
 			$date = intval( $date );
 			return $date;
 		}
@@ -1529,8 +1538,7 @@ class ICP_Utils {
 	function remotePost( $action, $data = '' ) {
 		global $icp;
 
-		$data['secret'] = 'WYSIWYG';
-		$response       = wp_remote_post(
+		$response = wp_remote_post(
 			ICP_INTELLYWP_ENDPOINT . '?iwpm_action=' . $action,
 			array(
 				'method'      => 'POST',
@@ -1556,7 +1564,14 @@ class ICP_Utils {
 
 	function isAdminUser() {
 		//https://wordpress.org/support/topic/how-to-check-admin-right-without-include-pluggablephp
-		return true;
+		// current_user_can() is defined early (capabilities.php), but it internally calls the
+		// pluggable wp_get_current_user(), which is loaded later (pluggable.php). Guard on the
+		// actual dependency so we don't fatal when this runs during the plugin-load phase.
+		if ( ! function_exists( 'wp_get_current_user' ) ) {
+			// Pluggable API not loaded yet (very early in the request); fall back to context.
+			return is_admin();
+		}
+		return current_user_can( 'manage_options' );
 	}
 	function isUserLogged() {
 		if ( ! function_exists( 'is_user_logged_in' ) ) {
@@ -1578,7 +1593,7 @@ class ICP_Utils {
 		global $icp;
 		$instance = $icp->Dao->Utils->getClass( $class );
 		if ( '' == $instance ) {
-			throw new Exception( 'CLASS [' . $class . '] DOES NOT EXIST' );
+			throw new Exception( 'CLASS [' . esc_html( $class ) . '] DOES NOT EXIST' );
 		}
 		$result = false;
 		if ( is_bool( $json ) ) {
@@ -1870,21 +1885,10 @@ class ICP_Utils {
 	}
 
 	function getClientIpAddress() {
-		$ipaddress = '';
-		if ( getenv( 'HTTP_CLIENT_IP' ) ) {
-			$ipaddress = getenv( 'HTTP_CLIENT_IP' );
-		} elseif ( getenv( 'HTTP_X_FORWARDED_FOR' ) ) {
-			$ipaddress = getenv( 'HTTP_X_FORWARDED_FOR' );
-		} elseif ( getenv( 'HTTP_X_FORWARDED' ) ) {
-			$ipaddress = getenv( 'HTTP_X_FORWARDED' );
-		} elseif ( getenv( 'HTTP_FORWARDED_FOR' ) ) {
-			$ipaddress = getenv( 'HTTP_FORWARDED_FOR' );
-		} elseif ( getenv( 'HTTP_FORWARDED' ) ) {
-			$ipaddress = getenv( 'HTTP_FORWARDED' );
-		} elseif ( getenv( 'REMOTE_ADDR' ) ) {
+		// Only trust REMOTE_ADDR; forwarded/client headers are spoofable.
+		$ipaddress = 'UNKNOWN';
+		if ( getenv( 'REMOTE_ADDR' ) ) {
 			$ipaddress = getenv( 'REMOTE_ADDR' );
-		} else {
-			$ipaddress = 'UNKNOWN';
 		}
 
 		$ipaddress = ( '::1' == $ipaddress ) ? '192.168.0.1' : $ipaddress;
@@ -2176,19 +2180,11 @@ class ICP_Utils {
 	}
 
 	public function getVisitorIpAddress() {
-		$ip = '';
-		if ( ! empty( $_SERVER['HTTP_CLIENT_IP'] ) ) {
-			$ip = $this->validate_ip( $_SERVER['HTTP_CLIENT_IP'] );
+		// Only trust REMOTE_ADDR; forwarded/client headers are spoofable.
+		if ( ! empty( $_SERVER['REMOTE_ADDR'] ) ) {
+			return $this->validate_ip( $_SERVER['REMOTE_ADDR'] );
 		}
-
-		if ( '' == $ip && ! empty( $_SERVER['HTTP_X_FORWARDED_FOR'] ) ) {
-			$ip = $this->validate_ip( $_SERVER['HTTP_X_FORWARDED_FOR'] );
-		}
-
-		if ( '' == $ip && ! empty( $_SERVER['REMOTE_ADDR'] ) ) {
-			$ip = $this->validate_ip( $_SERVER['REMOTE_ADDR'] );
-		}
-		return $ip;
+		return '';
 	}
 
 	public function toEmailsArray( $data ) {

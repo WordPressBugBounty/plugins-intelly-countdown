@@ -1,4 +1,7 @@
 <?php
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 
 class ICP_PluginOptions extends ICP_Options {
 	public function __construct() {
@@ -60,19 +63,31 @@ class ICP_PluginOptions extends ICP_Options {
 		/* @var $result ICP_PluginSettings */
 		$result = $this->getClassOption( 'ICP_PluginSettings', 'PluginSettings' );
 		if ( null === $result->allowUsageTracking ) {
-			$result->allowUsageTracking = 1;
+			$result->allowUsageTracking = 0;
 		}
 		if ( null === $result->allowPoweredBy ) {
 			$result->allowPoweredBy = 1;
 		}
 		return $result;
 	}
+	/**
+	 * Persist the plugin settings, mirroring a changed tracking consent onto its own option.
+	 *
+	 * Only the disabled -> enabled transition sends immediately. `sendTracking( true )`
+	 * bypasses both the consent check and the once-per-week throttle, so firing it on any
+	 * change meant opting *out* posted a full usage payload carrying
+	 * `iwpm_tracking_enable => 0` -- announcing the opt-out to the endpoint -- and let a
+	 * repeatedly toggled setting produce unthrottled requests in either direction. Same
+	 * gate as `icp_install()` in `includes/install.php`.
+	 */
 	public function setPluginSettings( ICP_PluginSettings $value, $overwrite = false ) {
 		global $icp;
 		$current = $this->getPluginSettings();
 		if ( $current->allowUsageTracking != $value->allowUsageTracking ) {
 			$this->setTrackingEnable( $value->allowUsageTracking );
-			$icp->Tracking->sendTracking( true );
+			if ( intval( $value->allowUsageTracking ) > 0 ) {
+				$icp->Tracking->sendTracking( true );
+			}
 		}
 		$this->setClassOption( 'PluginSettings', $value, $overwrite );
 	}

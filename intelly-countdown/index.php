@@ -7,10 +7,14 @@
  * Text Domain: intelly-countdown
  * Author URI: https://data443.com/
  * Email: support@data443.com
- * Version: 2.1.0
+ * Version: 2.2.0
  * Requires at least: 2.7
  * Requires PHP: 7.4
  */
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 register_activation_hook(__FILE__, function () {
     if (in_array('intelly-countdown-pro/index.php', apply_filters('active_plugins', get_option('active_plugins')))) {
         die;
@@ -24,7 +28,7 @@ define( 'ICP_PLUGIN_PREFIX', 'ICP_' );
 define( 'ICP_PLUGIN_FILE', __FILE__ );
 define( 'ICP_PLUGIN_SLUG', 'intelly-countdown' );
 define( 'ICP_PLUGIN_NAME', 'Evergreen Countdown' );
-define( 'ICP_PLUGIN_VERSION', '2.1.0' );
+define( 'ICP_PLUGIN_VERSION', '2.2.0' );
 define( 'ICP_PLUGIN_AUTHOR', 'IntellyWP' );
 define( 'ICP_PLUGIN_DIR', dirname( __FILE__ ) . '/' );
 

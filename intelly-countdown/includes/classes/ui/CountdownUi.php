@@ -15,7 +15,10 @@ class ICP_CountdownUi {
 	public function __construct() {
 	}
 	private function drawDigit( ICP_Countdown $countdown, $labels ) {
-		$words    = explode( ',', $labels );
+		$words = explode( ',', $labels );
+		if ( count( $words ) === 1 ) {
+			$words[] = $words[0];
+		}
 		$words[0] = __( $words[0], 'intelly-countdown' );
 		$words[1] = __( $words[1], 'intelly-countdown' );
 		$labels   = implode( ',', $words );
@@ -117,7 +120,7 @@ class ICP_CountdownUi {
 		$redirectUri = ( 'administrator' !== $role ) ? $countdown->redirectUri : '';
 
 		$this->generateClasses();
-		echo '<div class="' . esc_attr( $this->classCountdown ) . '" style="display:none; color:' . esc_attr( $countdown->color ) . ';" icp-expire="' . esc_attr( $expireIn ) . '" icp-type="' . esc_attr( $countdown->type ) . '" icp-redirect="' . esc_attr( $redirectUri ) . '" icp-id="' . esc_attr( $countdown->id ) . '" icp-restart="' . esc_attr( $restart ) . '"  icp-eg="' . ( $icp->Utils->isTrue( $countdown->evergreen ) ? 1 : 0 ) . '" icp-expiration="' . esc_attr( $expiration ) . '">';
+		echo '<div class="' . esc_attr( $this->classCountdown ) . '" style="display:none; color:' . esc_attr( $countdown->color ) . ';" icp-expire="' . esc_attr( $expireIn ) . '" icp-type="' . esc_attr( $countdown->type ) . '" icp-redirect="' . esc_url( $redirectUri ) . '" icp-id="' . esc_attr( $countdown->id ) . '" icp-restart="' . esc_attr( $restart ) . '"  icp-eg="' . ( $icp->Utils->isTrue( $countdown->evergreen ) ? 1 : 0 ) . '" icp-expiration="' . esc_attr( $expiration ) . '">';
 		switch ( $countdown->type ) {
 			case ICP_CountdownConstants::TYPE_DATE:
 				$this->drawDigit( $countdown, $countdown->labelsDays );

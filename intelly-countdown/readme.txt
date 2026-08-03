@@ -4,7 +4,7 @@ Tags: countdown timer, evergreen countdown timer, scarcity, scarcity builder, co
 Tested up to: 7.0
 Requires at least: 2.7
 Requires PHP: 7.4
-Stable tag: 2.1.0
+Stable tag: 2.2.0
 
 Evergreen Countdown is a plugin built for marketers that need a reliable solution to use scarcity on their websites and landing pages.
 
@@ -95,6 +95,13 @@ Support for POT translation files.
 == Changelog ==
 
 For detailed release notes, see our documentation here: [http://intellywp.com/docs/evergreen-countdown-timer/](http://intellywp.com/docs/evergreen-countdown-timer/).
+
+= 2.2.0 =
+*Release Date - 2026-7-28*
+
+* Fix PHP 8.1+ deprecation warnings
+* Fixed a PHP 8+ "Undefined array key 1" warning in ICP_CountdownUi::drawDigit()
+* Do a full security audit and fix any potential issues
 
 = 2.1.0 =
 *Release Date - 2026-5-20*

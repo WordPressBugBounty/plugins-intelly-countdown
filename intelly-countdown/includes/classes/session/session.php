@@ -1,4 +1,7 @@
 <?php
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 if ( ! defined( 'WP_SESSION_COOKIE' ) ) {
 	define( 'WP_SESSION_COOKIE', '_wp_session' );
 }
@@ -123,6 +126,10 @@ function icp_session_cleanup() {
 	}
 
 	if ( ! defined( 'WP_INSTALLING' ) ) {
+		// Garbage-collection sweep over expired session rows: a constant LIKE with no user
+		// input, run from a scheduled task. There is no core API for this scan, and caching a
+		// list whose whole purpose is to be deleted immediately afterwards would be counterproductive.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$expiration_keys = $wpdb->get_results( "SELECT option_name, option_value FROM $wpdb->options WHERE option_name LIKE '_wp_session_expires_%'" );
 
 		$now = time();

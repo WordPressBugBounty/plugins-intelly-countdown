@@ -1,4 +1,7 @@
 <?php
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 abstract class ICP_AbstractDetect {
 	public function getFirstSeen( ICP_Countdown $v ) {
 		return false;

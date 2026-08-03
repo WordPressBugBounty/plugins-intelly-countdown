@@ -254,7 +254,9 @@ class ICP_Ui {
 					}
 					if ( is_object( $instance ) ) {
 						$property = $k[1];
-						$v        = $this->FF->inputGet( $instance, $property, false, false );
+						// $this->FF here read an undefined property — a warning, then a
+						// fatal on the method call. The form object is $icp->Form.
+						$v = $icp->Form->inputGet( $instance, $property, false, false );
 					}
 					$k = implode( '.', $k );
 				} elseif ( isset( $args[ $k ] ) ) {
@@ -306,7 +308,7 @@ class ICP_Ui {
 				$color = 'primary';
 				$icon  = 'info';
 				break;
-			case 'warning';
+			case 'warning':
 				$color = 'warning';
 				$icon  = 'warning';
 				break;

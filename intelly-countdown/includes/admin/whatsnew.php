@@ -1,6 +1,10 @@
 <?php
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 function icp_ui_whats_new() {
-	global $icp, $ecf;
+	global $icp;
 	$icp->Options->setShowWhatsNew( false );
 	?>
 	<style>
@@ -19,17 +23,17 @@ function icp_ui_whats_new() {
 	<p class="icp-headline">Getting started with CA Enhancer</p>
 	<p class="icp-sub-headline">Watch this video before begin!</p>
 	<div style="text-align: center">
-		<iframe width="854" height="480" src="//www.youtube.com/embed/c3yfd5oiVGk?autoplay=1"></iframe>
+		<iframe title="Getting started" width="854" height="480" src="https://www.youtube.com/embed/c3yfd5oiVGk?autoplay=1"></iframe>
 		<br>
 		<br>
 		<?php
-		$ecf->prefix = 'License';
-		$args        = array(
+		$icp->Form->prefix = 'License';
+		$args              = array(
 			'uri'   => ICP_TAB_SETTINGS_URI,
 			'theme' => 'primary',
 			'class' => 'btn-lg',
 		);
-		$ecf->button( 'fbConnect', $args );
+		$icp->Form->button( 'fbConnect', $args );
 		?>
 	</div>
 	<?php

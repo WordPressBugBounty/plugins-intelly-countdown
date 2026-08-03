@@ -1,4 +1,8 @@
 <?php
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 class ICP_Singleton {
 	var $Lang;
 	var $Utils;
